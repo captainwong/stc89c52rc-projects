@@ -2,11 +2,8 @@
 
 #include "../stc89.h"
 
-// common anode display on P1
+// 7-segment common anode display
 
-#define MAIN_Fosc 11059200L
-
-sbit buzzer = P2 ^ 0;
 // define the CAD display table
 static unsigned char code cad_table[] = {
     0xc0, // "0"
