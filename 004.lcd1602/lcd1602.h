@@ -26,17 +26,17 @@ sbit LCD1602_EN = P2 ^ 6;
 sbit LCD1602_RW = P2 ^ 5;
 #endif
 
+#ifndef LCD1602_USE_4PIN
 sbit LCD1602_D0 = P0 ^ 0;
 sbit LCD1602_D1 = P0 ^ 1;
 sbit LCD1602_D2 = P0 ^ 2;
 sbit LCD1602_D3 = P0 ^ 3;
+#endif
 
-#ifndef LCD1602_USE_4PIN
 sbit LCD1602_D4 = P0 ^ 4;
 sbit LCD1602_D5 = P0 ^ 5;
 sbit LCD1602_D6 = P0 ^ 6;
 sbit LCD1602_D7 = P0 ^ 7;
-#endif
 
 /**************************config end**********************/
 

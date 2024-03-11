@@ -34,24 +34,23 @@ static void lcd_write(unsigned char d, bit rs) {
 #endif
 
     LCD1602_RS = rs;
-    LCD1602_EN = 1;
+    LCD1602_EN = 0;
 
 #ifdef LCD1602_USE_4PIN
     // write high 4-bit data
-    LCD1602_D4 = (d >> 4) & 0x01;
-    LCD1602_D5 = (d >> 5) & 0x01;
-    LCD1602_D6 = (d >> 6) & 0x01;
     LCD1602_D7 = (d >> 7) & 0x01;
-    delay_2us();
+    LCD1602_D6 = (d >> 6) & 0x01;
+    LCD1602_D5 = (d >> 5) & 0x01;
+    LCD1602_D4 = (d >> 4) & 0x01;
+
     LCD1602_EN = 1;
-    delay_1us();
     LCD1602_EN = 0;
 
     // write low 4-bit data
-    LCD1602_D0 = d & 0x01;
-    LCD1602_D1 = (d >> 1) & 0x01;
-    LCD1602_D2 = (d >> 2) & 0x01;
-    LCD1602_D3 = (d >> 3) & 0x01;
+    LCD1602_D7 = (d >> 3) & 0x01;
+    LCD1602_D6 = (d >> 2) & 0x01;
+    LCD1602_D5 = (d >> 1) & 0x01;
+    LCD1602_D4 = d & 0x01;
 #else
     LCD1602_D0 = d & 0x01;
     LCD1602_D1 = (d >> 1) & 0x01;
@@ -63,22 +62,24 @@ static void lcd_write(unsigned char d, bit rs) {
     LCD1602_D7 = (d >> 7) & 0x01;
 #endif
 
-    delay_2us();
     LCD1602_EN = 1;
-    delay_1us();
     LCD1602_EN = 0;
 }
 
 /**************************functions***********************/
 
 void lcd1602_init() {
-    delay_ms(5);
+    // WARNING: this delay is not enough for some LCD/MCU,
+    // you may need to increase it
+    delay_ms(50);
 #ifdef LCD1602_USE_4PIN
     lcd_write_cmd(0x28);
 #else
     lcd_write_cmd(0x38);
 #endif
 
+    // clear display
+    lcd_write_cmd(0x01);
     // display on, cursor off, blink off
     lcd_write_cmd(0x0c);
 }
