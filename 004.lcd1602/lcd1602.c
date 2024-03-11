@@ -72,14 +72,28 @@ void lcd1602_init() {
     // WARNING: this delay is not enough for some LCD/MCU,
     // you may need to increase it
     delay_ms(50);
+
+    // The same command is sent three times, 
+    // Function Set with 8-bit interface D7–D4 = binary 0011, 
+    // the lower four bits are "don't care", using single enable pulses. 
+    lcd_write_cmd(0x30);
+    lcd_write_cmd(0x30);
+    lcd_write_cmd(0x30);
+
 #ifdef LCD1602_USE_4PIN
+    // Function Set: 4-bit, 2-line, 5x8 dots
     lcd_write_cmd(0x28);
 #else
+    // Function Set: 8-bit, 2-line, 5x8 dots
     lcd_write_cmd(0x38);
 #endif
 
     // clear display
     lcd_write_cmd(0x01);
+    // entry mode, auto increment with no shift
+    lcd_write_cmd(0x06);
+    // cursor home
+    lcd_write_cmd(0x02);
     // display on, cursor off, blink off
     lcd_write_cmd(0x0c);
 }
