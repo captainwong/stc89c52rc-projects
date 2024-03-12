@@ -13,28 +13,23 @@
 
 #ifdef LCD1602_USE_RW
 static unsigned char lcd_is_busy() {
-    unsigned char res;
+    unsigned char busy = 1;
+    delay_us(100);
     LCD1602_RS = LCD1602_RS_CMD;
     LCD1602_RW = LCD1602_RW_READ;
     LCD1602_EN = 1;
-    delay_5us();
-    res = LCD1602_D0;
+    delay_us(100);
+    busy = LCD1602_D7;
     LCD1602_EN = 0;
-    return res;
+    return busy;
 }
-#endif  // LCD1602_USE_RW
+#endif // LCD1602_USE_RW
 
-static void lcd_write(unsigned char d, bit rs) {
-#ifdef LCD1602_USE_RW
-    while (lcd_is_busy())
-        _nop_();
-    LCD1602_RW = LCD1602_RW_WRITE;
-#else
-    delay_ms(2);
-#endif
-
+static void lcd_write_nowait(unsigned char d, bit rs) {
     LCD1602_RS = rs;
-    LCD1602_EN = 0;
+#ifdef LCD1602_USE_RW
+    LCD1602_RW = LCD1602_RW_WRITE;
+#endif
 
 #ifdef LCD1602_USE_4PIN
     // write high 4-bit data
@@ -66,47 +61,68 @@ static void lcd_write(unsigned char d, bit rs) {
     LCD1602_EN = 0;
 }
 
+static void lcd_write(unsigned char d, bit rs) {
+#ifdef LCD1602_USE_RW
+    while (lcd_is_busy())
+        _nop_();
+#else
+    delay_ms(2);
+#endif
+
+    lcd_write_nowait(d, rs);
+}
+
 /**************************functions***********************/
 
 void lcd1602_init() {
     // WARNING: this delay is not enough for some LCD/MCU,
     // you may need to increase it
     delay_ms(50);
+    LCD1602_EN = 0;
 
     // The same command is sent three times, 
     // Function Set with 8-bit interface D7–D4 = binary 0011, 
     // the lower four bits are "don't care", using single enable pulses. 
-    lcd_write_cmd(0x30);
-    lcd_write_cmd(0x30);
-    lcd_write_cmd(0x30);
+    lcd_write_nowait(0x30, LCD1602_RS_CMD);
+    delay_us(50);
+    lcd_write_nowait(0x30, LCD1602_RS_CMD);
+    delay_us(50);
+    lcd_write_nowait(0x30, LCD1602_RS_CMD);
+    delay_us(50);
 
 #ifdef LCD1602_USE_4PIN
     // Function Set: 4-bit, 2-line, 5x8 dots
-    lcd_write_cmd(0x28);
+    lcd_write_nowait(0x28, LCD1602_RS_CMD);
 #else
     // Function Set: 8-bit, 2-line, 5x8 dots
-    lcd_write_cmd(0x38);
+    lcd_write_nowait(0x38, LCD1602_RS_CMD);
 #endif
+    delay_us(50);
 
     // clear display
-    lcd_write_cmd(0x01);
-    // entry mode, auto increment with no shift
-    lcd_write_cmd(0x06);
-    // cursor home
-    lcd_write_cmd(0x02);
+    lcd_write_nowait(0x01, LCD1602_RS_CMD);
+    delay_us(50);
     // display on, cursor off, blink off
-    lcd_write_cmd(0x0c);
+    lcd_write_nowait(0x0c, LCD1602_RS_CMD);
+    delay_us(50);
+    // entry mode, auto increment with no shift
+    lcd_write_nowait(0x06, LCD1602_RS_CMD);
+    delay_us(50);
+    // cursor home
+    lcd_write_nowait(0x02, LCD1602_RS_CMD);
+    delay_us(50);
 }
 
 void lcd1602_clear() {
     lcd_write_cmd(0x01);
 }
 
+// set cursor position, x: 0~15, y: 0~1
 void lcd1602_set_cursor_pos(unsigned char x, unsigned char y) {
     unsigned char addr = 0x80;
     if (y == 1)
         addr += 0x40;
-    addr += x;
+    addr += x & 0x0f;
     lcd_write_cmd(addr);
 }
 

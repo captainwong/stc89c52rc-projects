@@ -8,7 +8,7 @@
 /* uncomment line below to enable RW
  * otherwise RW is tied to GND
  */
-// #define LCD1602_USE_RW
+#define LCD1602_USE_RW
 
 /* uncomment line below to enable 4-pin mode */
 #define LCD1602_USE_4PIN
@@ -43,6 +43,7 @@ sbit LCD1602_D7 = P0 ^ 7;
 /**************************functions***********************/
 void lcd1602_init();
 void lcd1602_clear();
+// set cursor position, x: 0~15, y: 0~1
 void lcd1602_set_cursor_pos(unsigned char x, unsigned char y);
 void lcd1602_show_cursor(bit show);
 void lcd1602_putc(char c);
