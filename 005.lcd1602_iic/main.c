@@ -6,7 +6,7 @@
 
 void main(void) {
     // display cad_table's content on P1
-    unsigned int i = 0, j = 0;
+    uint16_t i = 0, j = 0;
     P0 = P1 = P2 = P3 = 0xff;
     delay_ms(255);
     delay_ms(255);

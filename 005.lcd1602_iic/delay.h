@@ -9,7 +9,7 @@
 #define delay_3us() { _nop_(); _nop_(); _nop_(); }
 #define delay_5us() { _nop_(); _nop_(); _nop_(); _nop_(); _nop_(); }
 #define delay_10us() { delay_5us(); delay_5us(); }
-void delay_us(unsigned int us);
-void delay_ms(unsigned int ms);
+void delay_us(uint16_t us);
+void delay_ms(uint16_t ms);
 
 #endif

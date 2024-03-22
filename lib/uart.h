@@ -1,7 +1,7 @@
 #ifndef __UART_H__
 #define __UART_H__
 
-#include "../stc89.h"
+#include "stc89.h"
 #include "types.h"
 
 #define MAIN_FOSC 11059200

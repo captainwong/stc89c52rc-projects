@@ -44,13 +44,13 @@ sbit LCD1602_D7 = P0 ^ 7;
 void lcd1602_init();
 void lcd1602_clear();
 // set cursor position, x: 0~15, y: 0~1
-void lcd1602_set_cursor_pos(unsigned char x, unsigned char y);
+void lcd1602_set_cursor_pos(uint8_t x, uint8_t y);
 void lcd1602_show_cursor(bit show);
 void lcd1602_putc(char c);
 // display one digit, range 0~9
-void lcd1602_putd(unsigned char d);
+void lcd1602_putd(uint8_t d);
 // display two chars for hex, range 0x00~0xff
-void lcd1602_puth(unsigned char h);
+void lcd1602_puth(uint8_t h);
 // display null-terminated string
 void lcd1602_puts(const char* s);
 // shift 1 char to left/right, dir='R' for right, 'L' for left

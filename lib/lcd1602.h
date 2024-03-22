@@ -1,7 +1,8 @@
 #ifndef __LCD_1602_H__
 #define __LCD_1602_H__
 
-#include "../stc89.h"
+#include "stc89.h"
+#include "types.h"
 
 /**************************config*************************/
 
@@ -11,7 +12,7 @@
 #define LCD1602_USE_RW
 
 /* uncomment line below to enable 4-pin mode */
-#define LCD1602_USE_4PIN
+// #define LCD1602_USE_4PIN
 
 /* change PINs if you need
  * default PINs:

@@ -12,8 +12,8 @@
 #define lcd_write_cmd(c) lcd_write(c, LCD1602_RS_CMD)
 
 #ifdef LCD1602_USE_RW
-static unsigned char lcd_is_busy() {
-    unsigned char busy = 1;
+static uint8_t lcd_is_busy() {
+    uint8_t busy = 1;
     delay_us(100);
     LCD1602_RS = LCD1602_RS_CMD;
     LCD1602_RW = LCD1602_RW_READ;
@@ -25,7 +25,7 @@ static unsigned char lcd_is_busy() {
 }
 #endif // LCD1602_USE_RW
 
-static void lcd_write_nowait(unsigned char d, bit rs) {
+static void lcd_write_nowait(uint8_t d, bit rs) {
     LCD1602_RS = rs;
 #ifdef LCD1602_USE_RW
     LCD1602_RW = LCD1602_RW_WRITE;
@@ -61,7 +61,7 @@ static void lcd_write_nowait(unsigned char d, bit rs) {
     LCD1602_EN = 0;
 }
 
-static void lcd_write(unsigned char d, bit rs) {
+static void lcd_write(uint8_t d, bit rs) {
 #ifdef LCD1602_USE_RW
     while (lcd_is_busy())
         _nop_();
@@ -118,8 +118,8 @@ void lcd1602_clear() {
 }
 
 // set cursor position, x: 0~15, y: 0~1
-void lcd1602_set_cursor_pos(unsigned char x, unsigned char y) {
-    unsigned char addr = 0x80;
+void lcd1602_set_cursor_pos(uint8_t x, uint8_t y) {
+    uint8_t addr = 0x80;
     if (y == 1)
         addr += 0x40;
     addr += x & 0x0f;
@@ -138,12 +138,12 @@ void lcd1602_putc(char c) {
 }
 
 // display one digit, range 0~9
-void lcd1602_putd(unsigned char d) {
+void lcd1602_putd(uint8_t d) {
     lcd_write_data(d + '0');
 }
 
 // display two chars for hex, range 0x00~0xff
-void lcd1602_puth(unsigned char h) {
+void lcd1602_puth(uint8_t h) {
     lcd_write_data((h >> 4) + (h >> 4) > 9 ? 'A' + (h >> 4) - 10 : '0' + (h >> 4));
     lcd_write_data((h & 0x0f) > 9 ? 'A' + (h & 0x0f) - 10 : '0' + (h & 0x0f));
 }

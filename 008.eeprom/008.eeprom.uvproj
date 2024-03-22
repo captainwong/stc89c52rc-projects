@@ -382,24 +382,24 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
-              <FileName>uart.c</FileName>
+              <FileName>delay.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>iic.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\iic.c</FilePath>
+              <FilePath>..\lib\delay.c</FilePath>
             </File>
             <File>
               <FileName>eeprom.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\eeprom.c</FilePath>
+              <FilePath>..\lib\eeprom.c</FilePath>
             </File>
             <File>
-              <FileName>delay.c</FileName>
+              <FileName>iic.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\delay.c</FilePath>
+              <FilePath>..\lib\iic.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\uart.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -3,7 +3,7 @@
 
 #include <intrins.h>
 #include "types.h"
-#include "../stc89.h"
+#include "stc89.h"
 
 #define IIC_ACK 0
 #define IIC_NACK 1

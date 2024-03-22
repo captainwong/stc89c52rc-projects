@@ -1,7 +1,7 @@
-#include "delay.h"
-#include "eeprom.h"
-#include "iic.h"
-#include "uart.h"
+#include "../lib/delay.h"
+#include "../lib/eeprom.h"
+#include "../lib/iic.h"
+#include "../lib/uart.h"
 
 sbit IIC_SCL = P3 ^ 2;
 sbit IIC_SDA = P3 ^ 3;

@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "delay.h": "c",
+        "lcd1602.h": "c",
+        "eeprom.h": "c",
+        "iic.h": "c",
+        "uart.h": "c",
+        "types.h": "c",
+        "stc89.h": "c"
+    }
+}

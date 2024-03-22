@@ -1,6 +1,7 @@
 #include <intrins.h>
 
-#include "../stc89.h"
+#include "../lib/stc89.h"
+#include "../lib/types.h"
 
 // 4 digit 7-segment common cathode display
 
@@ -10,7 +11,7 @@ sbit digit3 = P0 ^ 2;
 sbit digit4 = P0 ^ 3;
 
 // define the CCD display table
-static unsigned char code ccd_table[] = {
+static uint8_t code ccd_table[] = {
     0x3f,  // '0'
     0x06,  // '1'
     0x5b,  // '2'
@@ -31,7 +32,7 @@ static unsigned char code ccd_table[] = {
 
 //@11.0592MHz
 void Delay1ms(void) {
-    unsigned char data i = 2, j = 199;
+    uint8_t data i = 2, j = 199;
     _nop_();
     j = 199;
     do {
@@ -40,13 +41,13 @@ void Delay1ms(void) {
     } while (--i);
 }
 
-void delay_ms(unsigned char ms) {
+void delay_ms(uint8_t ms) {
     while (ms--) {
         Delay1ms();
     }
 }
 
-void display_one_digit(unsigned char digit, unsigned char value) {
+void display_one_digit(uint8_t digit, uint8_t value) {
     digit1 = digit2 = digit3 = digit4 = 1;
     switch (digit) {
         case 1:
@@ -69,7 +70,7 @@ void display_one_digit(unsigned char digit, unsigned char value) {
 }
 
 // value range: 0 - 9999
-void display_four_digits(unsigned int value) {
+void display_four_digits(uint16_t value) {
     if (value > 9999) {
         return;
     }
@@ -85,7 +86,7 @@ void display_four_digits(unsigned int value) {
 
 void main(void) {
     // display cad_table's content on P1
-    unsigned int i = 0, j = 0;
+    uint16_t i = 0, j = 0;
     while (1) {
         display_four_digits(i);
         if (++j == 10) {

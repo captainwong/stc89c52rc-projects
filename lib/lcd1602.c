@@ -91,22 +91,22 @@ void lcd1602_init() {
     delay_us(50);
 
 #ifdef LCD1602_USE_4PIN
-    // Function Set: 4-bit, 2-line, 5x8 dots
+    // Function Set: 4-bit, 2-line, 5x7 dots
     lcd_write_nowait(0x28, LCD1602_RS_CMD);
 #else
-    // Function Set: 8-bit, 2-line, 5x8 dots
+    // Function Set: 8-bit, 2-line, 5x7 dots
     lcd_write_nowait(0x38, LCD1602_RS_CMD);
 #endif
     delay_us(50);
 
-    // clear display
-    lcd_write_nowait(0x01, LCD1602_RS_CMD);
-    delay_us(50);
     // display on, cursor off, blink off
     lcd_write_nowait(0x0c, LCD1602_RS_CMD);
     delay_us(50);
     // entry mode, auto increment with no shift
     lcd_write_nowait(0x06, LCD1602_RS_CMD);
+    delay_us(50);
+    // clear display
+    lcd_write_nowait(0x01, LCD1602_RS_CMD);
     delay_us(50);
     // cursor home
     lcd_write_nowait(0x02, LCD1602_RS_CMD);

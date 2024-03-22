@@ -1,11 +1,12 @@
 #include <intrins.h>
 
-#include "../stc89.h"
+#include "../lib/stc89.h"
+#include "../lib/types.h"
 
 // 7-segment common anode display
 
 // define the CAD display table
-static unsigned char code cad_table[] = {
+static uint8_t code cad_table[] = {
     0xc0, // "0"
     0xf9, // "1"
     0xa4, // "2"
@@ -26,7 +27,7 @@ static unsigned char code cad_table[] = {
 
 //@11.0592MHz
 void Delay1ms(void) {
-    unsigned char data i = 2, j = 199;
+    uint8_t data i = 2, j = 199;
     _nop_();
     j = 199;
     do {
@@ -35,7 +36,7 @@ void Delay1ms(void) {
     } while (--i);
 }
 
-void delay_ms(unsigned char ms) {
+void delay_ms(uint8_t ms) {
     while (ms--) {
         Delay1ms();
     }
@@ -43,7 +44,7 @@ void delay_ms(unsigned char ms) {
 
 void main(void) {
     // display cad_table's content on P1
-    unsigned char i = 0;
+    uint8_t i = 0;
     while (1) {
         P1 = cad_table[i];
         delay_ms(255);

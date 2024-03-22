@@ -46,7 +46,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>004.lcd1602</OutputName>
+          <OutputName>009.ds1302</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -382,14 +382,19 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\delay.c</FilePath>
+            </File>
+            <File>
               <FileName>lcd1602.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\lib\lcd1602.c</FilePath>
             </File>
             <File>
-              <FileName>delay.c</FileName>
+              <FileName>uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\delay.c</FilePath>
+              <FilePath>..\lib\uart.c</FilePath>
             </File>
           </Files>
         </Group>

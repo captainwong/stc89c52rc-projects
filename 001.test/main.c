@@ -1,5 +1,6 @@
 #include <reg52.h>
 #include <intrins.h>
+#include "../lib/types.h"
 
 #define MAIN_Fosc 11059200L
 
@@ -10,7 +11,7 @@ enum LedState { ON,
 
 //@11.0592MHz
 void Delay1ms(void) {
-    unsigned char data i = 2, j = 199;
+    uint8_t data i = 2, j = 199;
     _nop_();
     j = 199;
     do {
@@ -19,14 +20,14 @@ void Delay1ms(void) {
     } while (--i);
 }
 
-void delay_ms(unsigned char ms) {
+void delay_ms(uint8_t ms) {
     while (ms--) {
         Delay1ms();
     }
 }
 
 void shift_right() {
-    unsigned char i;
+    uint8_t i;
     for (i = 0; i < 8; i++) {
         P1 = ~(0x01 << i);
         delay_ms(255);
@@ -34,7 +35,7 @@ void shift_right() {
 }
 
 void shift_left() {
-    unsigned char i;
+    uint8_t i;
     for (i = 0; i < 8; i++) {
         P1 = ~(0x80 >> i);
         delay_ms(255);
