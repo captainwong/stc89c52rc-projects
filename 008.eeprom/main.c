@@ -1,15 +1,21 @@
-#include "uart.h"
-#include "iic.h"
 #include "delay.h"
+#include "eeprom.h"
+#include "iic.h"
+#include "uart.h"
 
 sbit IIC_SCL = P3 ^ 2;
 sbit IIC_SDA = P3 ^ 3;
 
-static void iic_write_sda(unsigned char dat) {
+#define EEPROM_DEV_ADDR 0x50
+#define EEPROM_BUF_LEN 128
+
+static uint8_t eeprom_buf[EEPROM_BUF_LEN];
+
+static void iic_write_sda(uint8_t dat) {
     IIC_SDA = dat;
 }
 
-static void iic_write_scl(unsigned char dat) {
+static void iic_write_scl(uint8_t dat) {
     IIC_SCL = dat;
 }
 
@@ -24,19 +30,36 @@ static const iic_io_t iic_io = {
 };
 
 void main(void) {
+    uint8_t i = 0;
     EA = 1;
     uart_init();
     while (1) {
-        unsigned char ack = iic_address(&iic_io, 0x50, 0);
-        //uart_send_byte('A');
-        //uart_send_string("test");
-        uart_send_string("addr=0x50, ack: ");
-        uart_send_byte('0' + ack);
-        delay_ms(3000);
-        
-        ack = iic_address(&iic_io, 0xA0, 0);
-        uart_send_string("addr=0xA0, ack: ");
-        uart_send_byte('0' + ack);
-        delay_ms(3000);
+        if (uart_rx == 'r') {  // read low 128 bytes
+            uart_rx = 0;
+            eeprom_read(&iic_io, EEPROM_DEV_ADDR, 0, eeprom_buf, EEPROM_BUF_LEN);
+            uart_send_bytes(eeprom_buf, EEPROM_BUF_LEN);
+        } else if (uart_rx == 'R') {  // read high 128 bytes
+            uart_rx = 0;
+            eeprom_read(&iic_io, EEPROM_DEV_ADDR, EEPROM_BUF_LEN, eeprom_buf, EEPROM_BUF_LEN);
+            uart_send_bytes(eeprom_buf, EEPROM_BUF_LEN);
+        } else if (uart_rx == 'w') {  // write low 128 bytes
+            uart_rx = 0;
+            for (i = 0; i < EEPROM_BUF_LEN; i++) {
+                eeprom_buf[i] = i;
+            }
+            eeprom_write(&iic_io, EEPROM_DEV_ADDR, 0, eeprom_buf, EEPROM_BUF_LEN);
+        } else if (uart_rx == 'W') {  // write high 128 bytes
+            uart_rx = 0;
+            for (i = 0; i < EEPROM_BUF_LEN; i++) {
+                eeprom_buf[i] = EEPROM_BUF_LEN + i;
+            }
+            eeprom_write(&iic_io, EEPROM_DEV_ADDR, EEPROM_BUF_LEN, eeprom_buf, EEPROM_BUF_LEN);
+        } else if (uart_rx == 'F') {  // read all 256 bytes
+            uart_rx = 0;
+            eeprom_read(&iic_io, EEPROM_DEV_ADDR, 0, eeprom_buf, EEPROM_BUF_LEN);
+            uart_send_bytes(eeprom_buf, EEPROM_BUF_LEN);
+            eeprom_read(&iic_io, EEPROM_DEV_ADDR, EEPROM_BUF_LEN, eeprom_buf, EEPROM_BUF_LEN);
+            uart_send_bytes(eeprom_buf, EEPROM_BUF_LEN);
+        }
     }
 }

@@ -19,9 +19,9 @@ void iic_stop(const iic_io_t* io) {
     iic_delay();
 }
 
-bit iic_send_byte(const iic_io_t* io, unsigned char dat) {
+bit iic_write_byte(const iic_io_t* io, uint8_t dat) {
     bit ack = IIC_NACK;
-    unsigned char mask = 0x80;
+    uint8_t mask = 0x80;
     while (mask) {
         io->write_sda(dat & mask);
         iic_delay();
@@ -40,10 +40,33 @@ bit iic_send_byte(const iic_io_t* io, unsigned char dat) {
     return ack;
 }
 
-bit iic_address(const iic_io_t* io, unsigned char addr, bit rw) {
+bit iic_test(const iic_io_t* io, uint8_t addr) {
     bit ack = IIC_NACK;
     iic_start(io);
-    ack = iic_send_byte(io, (addr << 1) | rw);
+    ack = iic_write_byte(io, (addr << 1));
     iic_stop(io);
     return ack;
+}
+
+uint8_t iic_read_byte(const iic_io_t* io, bit ack) {
+    uint8_t dat = 0;
+    uint8_t mask = 0x80;
+    io->write_sda(1);
+    while (mask) {
+        iic_delay();
+        io->write_scl(1);
+        iic_delay();
+        if (io->read_sda()) {
+            dat |= mask;
+        }
+        iic_delay();
+        io->write_scl(0);
+        mask >>= 1;
+    }
+    io->write_sda(ack);
+    iic_delay();
+    io->write_scl(1);
+    iic_delay();
+    io->write_scl(0);
+    return dat;
 }
