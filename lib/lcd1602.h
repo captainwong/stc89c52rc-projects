@@ -1,7 +1,7 @@
 #ifndef __LCD_1602_H__
 #define __LCD_1602_H__
 
-#include "stc89.h"
+#include "delay.h"
 #include "types.h"
 
 #define LCD1602_MODE_4BIT 0

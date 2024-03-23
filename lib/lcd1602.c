@@ -1,7 +1,5 @@
 #include "lcd1602.h"
 
-#include "delay.h"
-
 /**************************local helpers*******************/
 
 #define LCD1602_RS_CMD 0
