@@ -9,10 +9,9 @@
 
 typedef struct {
     uint8_t mode;  // 0 for 4-bit mode, 1 for 8-bit mode
-    // pass NULL if RW is tied to GND
-    void (*write_rw)(uint8_t rw);
-    void (*write_rs)(uint8_t rs);
-    void (*write_en)(uint8_t en);
+    void (*write_rw)(uint8_t rw); // if NULL, use delay instead of busy flag
+    void (*write_rs)(uint8_t rs); // must not be NULL
+    void (*write_en)(uint8_t en); // must not be NULL
     union {
         // this struct is used for 4-bit mode,
         // the low 4 bits of dat or return value is valid
@@ -26,7 +25,7 @@ typedef struct {
             void (*write_byte)(uint8_t dat);
             uint8_t (*read_byte)();
         } lcd8bit;
-    } io;
+    } io; // choose one of the two structs
 } lcd1602_t;
 
 void lcd1602_init(const lcd1602_t* lcd);

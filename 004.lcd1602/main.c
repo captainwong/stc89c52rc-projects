@@ -4,7 +4,7 @@
 #include "../lib/lcd1602.h"
 #include "../lib/stc89.h"
 
-#define LCD1602_USE_4BIT_BUS 0
+#define LCD1602_USE_4BIT_BUS 1
 sbit LCD1602_RS = P2 ^ 7;
 sbit LCD1602_EN = P2 ^ 6;
 sbit LCD1602_RW = P2 ^ 5;
@@ -55,9 +55,6 @@ static uint8_t lcd1602_io_read() {
 static lcd1602_t lcd;
 
 void main(void) {
-    // display cad_table's content on P1
-    uint16_t i = 0, j = 0;
-    delay_ms(1000);
 #if LCD1602_USE_4BIT_BUS
     lcd.mode = LCD1602_MODE_4BIT;
 #else
@@ -88,7 +85,7 @@ void main(void) {
         lcd1602_set_cursor_pos(&lcd, 0, 0);
         lcd1602_puts(&lcd, "Hello, world!");
         lcd1602_set_cursor_pos(&lcd, 0, 1);
-        lcd1602_puts(&lcd, "Hello, world!2");
+        lcd1602_puts(&lcd, "Hello, github!");
         delay_ms(2000);
     }
 }

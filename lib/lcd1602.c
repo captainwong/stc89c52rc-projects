@@ -11,15 +11,10 @@
 
 static void lcd_wait_ready(const lcd1602_t* lcd) {
     if (lcd->write_rw) {
-        uint8_t busy = 0;
-        // if (lcd->mode == LCD1602_MODE_4BIT) {
-        //     lcd->io.lcd4bit.write_4bit(0xFF);
-        // } else {
-        //     lcd->io.lcd8bit.write_byte(0xFF);
-        // }
-        lcd->write_rs(LCD1602_RS_CMD);
-        lcd->write_rw(LCD1602_RW_READ);
+        uint8_t busy = 1;
         do {
+            lcd->write_rs(LCD1602_RS_CMD);
+            lcd->write_rw(LCD1602_RW_READ);
             lcd->write_en(1);
             if (lcd->mode == LCD1602_MODE_4BIT) {
                 busy = lcd->io.lcd4bit.read_4bit() & 0x08;
@@ -68,25 +63,38 @@ static void lcd_write_cmd(const lcd1602_t* lcd, uint8_t c) {
     lcd_write(lcd, c, LCD1602_RS_CMD);
 }
 
+static void lcd_4bit_reset(const lcd1602_t* lcd) {
+    lcd->write_rs(LCD1602_RS_CMD);
+    if (lcd->write_rw) {
+        lcd->write_rw(LCD1602_RW_WRITE);
+    }
+
+    // The same command is sent three times,
+    // Function Set with 8-bit interface D7–D4 = binary 0011,
+    // the lower four bits are "don't care", using single enable pulses.
+    lcd->io.lcd4bit.write_4bit(3);
+    lcd->write_en(1);
+    lcd->write_en(0);
+    lcd->write_en(1);
+    lcd->write_en(0);
+    lcd->write_en(1);
+    lcd->write_en(0);
+    // Finally, set to 4-bit interface
+    lcd->io.lcd4bit.write_4bit(2);
+    lcd->write_en(1);
+    lcd->write_en(0);
+}
+
 /**************************public functions***********************/
 
 void lcd1602_init(const lcd1602_t* lcd) {
     // WARNING: this delay is not enough for some LCD/MCU,
     // you may need to increase it
-    delay_ms(50);
+    delay_ms(100);
     lcd->write_en(0);
 
-    // The same command is sent three times,
-    // Function Set with 8-bit interface D7–D4 = binary 0011,
-    // the lower four bits are "don't care", using single enable pulses.
-    lcd_write_nowait(lcd, 0x30, LCD1602_RS_CMD);
-    delay_us(50);
-    lcd_write_nowait(lcd, 0x30, LCD1602_RS_CMD);
-    delay_us(50);
-    lcd_write_nowait(lcd, 0x30, LCD1602_RS_CMD);
-    delay_us(50);
-
     if (lcd->mode == LCD1602_MODE_4BIT) {
+        lcd_4bit_reset(lcd);
         // Function Set: 4-bit, 2-line, 5x7 dots
         lcd_write_nowait(lcd, 0x28, LCD1602_RS_CMD);
     } else {
@@ -95,15 +103,15 @@ void lcd1602_init(const lcd1602_t* lcd) {
     }
     delay_us(50);
 
-    // display on, cursor off, blink off
-    lcd_write_nowait(lcd, 0x0c, LCD1602_RS_CMD);
-    delay_us(50);
     // entry mode, auto increment with no shift
     lcd_write_nowait(lcd, 0x06, LCD1602_RS_CMD);
     delay_us(50);
+    // display on, cursor off, blink off
+    lcd_write_nowait(lcd, 0x0c, LCD1602_RS_CMD);
+    delay_us(50);
     // clear display
     lcd_write_nowait(lcd, 0x01, LCD1602_RS_CMD);
-    delay_us(50);
+    delay_ms(3);
     // cursor home
     lcd_write_nowait(lcd, 0x02, LCD1602_RS_CMD);
     delay_us(50);
@@ -123,10 +131,7 @@ void lcd1602_set_cursor_pos(const lcd1602_t* lcd, uint8_t x, uint8_t y) {
 }
 
 void lcd1602_show_cursor(const lcd1602_t* lcd, bit show) {
-    if (show)
-        lcd_write_cmd(lcd, 0x0e);
-    else
-        lcd_write_cmd(lcd, 0x0c);
+    lcd_write_cmd(lcd, show ? 0x0e : 0x0c);
 }
 
 void lcd1602_putc(const lcd1602_t* lcd, char c) {
