@@ -396,6 +396,11 @@
               <FileType>1</FileType>
               <FilePath>.\ir.c</FilePath>
             </File>
+            <File>
+              <FileName>lcd1602.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\lcd1602.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

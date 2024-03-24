@@ -143,8 +143,10 @@ void lcd1602_putd(const lcd1602_t* lcd, uint8_t d) {
 
 // display two chars for hex, range 0x00~0xff
 void lcd1602_puth(const lcd1602_t* lcd, uint8_t h) {
-    lcd_write_data(lcd, (h >> 4) + (h >> 4) > 9 ? 'A' + (h >> 4) - 10 : '0' + (h >> 4));
-    lcd_write_data(lcd, (h & 0x0f) > 9 ? 'A' + (h & 0x0f) - 10 : '0' + (h & 0x0f));
+    uint8_t hi = h >> 4;
+    uint8_t lo = h & 0x0f;
+    lcd_write_data(lcd, hi > 9 ? 'A' - 10 + hi : '0' + hi);
+    lcd_write_data(lcd, lo > 9 ? 'A' - 10 + lo : '0' + lo);
 }
 
 // display null-terminated string
