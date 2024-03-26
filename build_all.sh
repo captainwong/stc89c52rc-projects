@@ -18,7 +18,7 @@ function build_project() {
     fi
 }
 
-projects="001.test 002.cad 003.ccd4 004.lcd1602 006.uart_echo 007.uart_echo_115200 008.eeprom 009.ds1302"
+projects="001.test 002.cad 003.ccd4 004.lcd1602 006.uart_echo 007.uart_echo_115200 008.eeprom 009.ds1302 010.ir 011.ir"
 for project in $projects; do
     build_project $project
     if [ $? -ne 0 ]; then
