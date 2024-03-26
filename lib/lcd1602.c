@@ -86,17 +86,19 @@ static void lcd_4bit_reset(const lcd1602_t* lcd) {
 /**************************public functions***********************/
 
 void lcd1602_init(const lcd1602_t* lcd) {
-    // WARNING: this delay is not enough for some LCD/MCU,
-    // you may need to increase it
-    delay_ms(100);
+    /*
+     * Wait for more than 15ms after Vcc rises to 4.5V
+     * Or wait for more than 40ms after Vcc rises to 2.7V
+     */
+    delay_ms(40);
     lcd->write_en(0);
 
     if (lcd->mode == LCD1602_MODE_4BIT) {
         lcd_4bit_reset(lcd);
-        // Function Set: 4-bit, 2-line, 5x7 dots
+        // Function Set: 4-bit, 2-line, 5x8 dots
         lcd_write_nowait(lcd, 0x28, LCD1602_RS_CMD);
     } else {
-        // Function Set: 8-bit, 2-line, 5x7 dots
+        // Function Set: 8-bit, 2-line, 5x8 dots
         lcd_write_nowait(lcd, 0x38, LCD1602_RS_CMD);
     }
     delay_us(50);
