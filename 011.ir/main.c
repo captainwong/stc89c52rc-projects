@@ -33,13 +33,13 @@ static void lcd1602_write_rw(uint8_t rw) {
 }
 
 #if LCD1602_USE_4BIT_BUS
-static void lcd1602_write_4bit(uint8_t dat) {
+static void lcd1602_write_4bits(uint8_t dat) {
     LCD1602_D7 = (dat >> 3) & 0x01;
     LCD1602_D6 = (dat >> 2) & 0x01;
     LCD1602_D5 = (dat >> 1) & 0x01;
     LCD1602_D4 = (dat >> 0) & 0x01;
 }
-static uint8_t lcd1602_read_4bit() {
+static uint8_t lcd1602_read_4bits() {
     uint8_t dat = LCD1602_D7;
     dat = (dat << 1) | LCD1602_D6;
     dat = (dat << 1) | LCD1602_D5;
@@ -47,10 +47,10 @@ static uint8_t lcd1602_read_4bit() {
     return dat;
 }
 #else
-static void lcd1602_io_write(uint8_t dat) {
+static void lcd1602_write_8bits(uint8_t dat) {
     LCD1602_IO = dat;
 }
-static uint8_t lcd1602_io_read() {
+static uint8_t lcd1602_read_8bits() {
     return LCD1602_IO;
 }
 #endif
@@ -60,14 +60,13 @@ static lcd1602_t lcd;
 static void display_ir_value() {
     uint8_t i;
     lcd1602_clear(&lcd);
-    lcd1602_set_cursor_pos(&lcd, 0, 0);
     for (i = 0; i < sizeof(ir_value); i++) {
         lcd1602_puth(&lcd, ir_value[i]);
         lcd1602_putc(&lcd, ' ');
     }
-    
-    lcd1602_set_cursor_pos(&lcd, 0, 1);
-    switch(ir_value[2]) {
+
+    lcd1602_set_cursor(&lcd, 0, 1);
+    switch (ir_value[2]) {
         case 0x45:
             lcd1602_puts(&lcd, "CH-");
             break;
@@ -138,22 +137,24 @@ static void display_ir_value() {
 }
 
 void main(void) {
-#if LCD1602_USE_4BIT_BUS
-    lcd.mode = LCD1602_MODE_4BIT;
-#else
-    lcd.mode = LCD1602_MODE_8BIT;
-#endif
     lcd.write_rs = lcd1602_write_rs;
     lcd.write_en = lcd1602_write_en;
     lcd.write_rw = lcd1602_write_rw;
 #if LCD1602_USE_4BIT_BUS
-    lcd.io.lcd4bit.write_4bit = lcd1602_write_4bit;
-    lcd.io.lcd4bit.read_4bit = lcd1602_read_4bit;
+    lcd.io.lcd4bit.write_4bits = lcd1602_write_4bits;
+    lcd.io.lcd4bit.read_4bits = lcd1602_read_4bits;
 #else
-    lcd.io.lcd8bit.write_byte = lcd1602_io_write;
-    lcd.io.lcd8bit.read_byte = lcd1602_io_read;
+    lcd.io.lcd8bit.write_8bits = lcd1602_write_8bits;
+    lcd.io.lcd8bit.read_8bits = lcd1602_read_8bits;
 #endif
-    lcd1602_init(&lcd);
+    lcd1602_init(&lcd,
+#if LCD1602_USE_4BIT_BUS
+                 1,
+#else
+                 0,
+#endif
+                 HD44780_2LINE,
+                 HD44780_5x8_DOTS);
 
     uart_init();
     ir_init();
