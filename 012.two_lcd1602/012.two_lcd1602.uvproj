@@ -46,7 +46,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>005.lcd1602_iic</OutputName>
+          <OutputName>012.two_lcd1602</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -395,6 +395,21 @@
               <FileName>lcd1602_iic.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\lib\lcd1602_iic.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd1602.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\lcd1602.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lcd1.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lcd2.c</FilePath>
             </File>
           </Files>
         </Group>

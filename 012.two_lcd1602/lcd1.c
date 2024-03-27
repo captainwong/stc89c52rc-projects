@@ -1,9 +1,10 @@
 #include "lcd1.h"
 
+#include "../lib/delay.h"
 #include "../lib/lcd1602.h"
 #include "../lib/stc89.h"
 
-#define LCD1602_USE_4BIT_BUS 1
+#define LCD1602_USE_4BIT_BUS 0
 sbit LCD1602_RS = P2 ^ 7;
 sbit LCD1602_EN = P2 ^ 6;
 sbit LCD1602_RW = P2 ^ 5;
@@ -43,17 +44,17 @@ static uint8_t lcd1602_read_4bits() {
     return dat;
 }
 #else
-static void lcd1602_io_write(uint8_t dat) {
+static void lcd1602_write_8bits(uint8_t dat) {
     LCD1602_IO = dat;
 }
-static uint8_t lcd1602_io_read() {
+static uint8_t lcd1602_read_8bits() {
     return LCD1602_IO;
 }
 #endif
 
 static lcd1602_t lcd;
 
-void main(void) {
+void lcd1_init() {
     lcd.write_rs = lcd1602_write_rs;
     lcd.write_en = lcd1602_write_en;
     lcd.write_rw = lcd1602_write_rw;
@@ -61,8 +62,8 @@ void main(void) {
     lcd.io.lcd4bit.write_4bits = lcd1602_write_4bits;
     lcd.io.lcd4bit.read_4bits = lcd1602_read_4bits;
 #else
-    lcd.io.lcd8bit.write_byte = lcd1602_io_write;
-    lcd.io.lcd8bit.read_byte = lcd1602_io_read;
+    lcd.io.lcd8bit.write_8bits = lcd1602_write_8bits;
+    lcd.io.lcd8bit.read_8bits = lcd1602_read_8bits;
 #endif
 
     lcd1602_init(&lcd,
@@ -71,22 +72,15 @@ void main(void) {
 #else
                  0,
 #endif
-                 HD44780_2LINE,
-                 HD44780_5x8_DOTS);
+                 HD44780_1LINE,
+                 HD44780_5x10_DOTS);
+}
 
-    while (1) {
-        lcd1602_clear(&lcd);
-        lcd1602_set_cursor(&lcd, 0, 0);
-        lcd1602_puts(&lcd, "Hi, I'm LCD1602!");
-        lcd1602_set_cursor(&lcd, 0, 1);
-        lcd1602_puts(&lcd, "No, I'm BATMAN!");
-        delay_ms(2000);
+void lcd1_print(char *str) {
+    lcd1602_clear(&lcd);
+    lcd1602_puts(&lcd, str);
+}
 
-        lcd1602_clear(&lcd);
-        lcd1602_set_cursor(&lcd, 0, 0);
-        lcd1602_puts(&lcd, "Hello, world!");
-        lcd1602_set_cursor(&lcd, 0, 1);
-        lcd1602_puts(&lcd, "Hello, github!");
-        delay_ms(2000);
-    }
+void lcd1_clear() {
+    lcd1602_clear(&lcd);
 }
