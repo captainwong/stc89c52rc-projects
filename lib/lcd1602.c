@@ -33,7 +33,7 @@ static void lcd_write(lcd1602_t* lcd, uint8_t d, bit rs) {
         lcd->write_rw(LCD1602_RW_WRITE);
     }
 
-    if (lcd->display_mode & HD44780_8BIT_MODE) {
+    if (lcd->display_function & HD44780_8BIT_MODE) {
         lcd_write_8bits(lcd, d);
     } else {
         lcd_write_4bits(lcd, d >> 4);
@@ -48,7 +48,7 @@ static void lcd_wait_ready(lcd1602_t* lcd) {
             lcd->write_rs(LCD1602_RS_CMD);
             lcd->write_rw(LCD1602_RW_READ);
             lcd->write_en(1);
-            if (lcd->display_mode & HD44780_8BIT_MODE) {
+            if (lcd->display_function & HD44780_8BIT_MODE) {
                 busy = lcd->io.lcd8bit.read_8bits() & 0x80;
             } else {
                 busy = lcd->io.lcd4bit.read_4bits() & 0x08;
@@ -251,6 +251,7 @@ void lcd1602_putc(lcd1602_t* lcd, char c) {
 }
 
 void lcd1602_putd(lcd1602_t* lcd, uint8_t d) {
+    d %= 10;
     lcd1602_write_data(lcd, d + '0');
 }
 

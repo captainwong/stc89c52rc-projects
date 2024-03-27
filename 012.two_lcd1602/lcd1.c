@@ -1,8 +1,9 @@
-#include "../lib/delay.h"
+#include "lcd1.h"
+
 #include "../lib/lcd1602.h"
 #include "../lib/stc89.h"
 
-#define LCD1602_USE_4BIT_BUS 0
+#define LCD1602_USE_4BIT_BUS 1
 sbit LCD1602_RS = P2 ^ 7;
 sbit LCD1602_EN = P2 ^ 6;
 sbit LCD1602_RW = P2 ^ 5;
@@ -42,10 +43,10 @@ static uint8_t lcd1602_read_4bits() {
     return dat;
 }
 #else
-static void lcd1602_write_8bits(uint8_t dat) {
+static void lcd1602_io_write(uint8_t dat) {
     LCD1602_IO = dat;
 }
-static uint8_t lcd1602_read_8bits() {
+static uint8_t lcd1602_io_read() {
     return LCD1602_IO;
 }
 #endif
@@ -60,8 +61,8 @@ void main(void) {
     lcd.io.lcd4bit.write_4bits = lcd1602_write_4bits;
     lcd.io.lcd4bit.read_4bits = lcd1602_read_4bits;
 #else
-    lcd.io.lcd8bit.write_8bits = lcd1602_write_8bits;
-    lcd.io.lcd8bit.read_8bits = lcd1602_read_8bits;
+    lcd.io.lcd8bit.write_byte = lcd1602_io_write;
+    lcd.io.lcd8bit.read_byte = lcd1602_io_read;
 #endif
 
     lcd1602_init(&lcd,
