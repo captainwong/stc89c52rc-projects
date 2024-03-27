@@ -1,83 +1,208 @@
 #include "lcd1602_iic.h"
 
-bit lcd1602_iic_write_byte(const lcd1602_iic_t* lcd, uint8_t dat) {
-    // wait for the device to be ready and last time write is finished
-    uint8_t retries = LCD1602_IIC_RETRY_TIMES;
-    do {
-        iic_start(lcd->iic);
-        if (IIC_ACK == iic_write_byte(lcd->iic, lcd->addr << 1)) {
-            break;
-        }
-        iic_stop(lcd->iic);
-    } while (retries--);
-    // device not ready
-    if (retries == 0) {
-        return IIC_NACK;
+/**************************local helpers*******************/
+
+// write data to expander, with backlight on
+static void expander_write(lcd1602_iic_t* lcd, uint8_t dat) {
+    iic_start(lcd->iic);
+    iic_write_byte(lcd->iic, lcd->addr << 1);
+    iic_write_byte(lcd->iic, dat | lcd->backlight);
+    iic_stop(lcd->iic);
+}
+
+// pulse enable pin
+static void pulse_enable(lcd1602_iic_t* lcd, uint8_t dat) {
+    expander_write(lcd, dat | LCD1602_IIC_EN_BIT);   // EN high
+    delay_us(1);                                     // enable pulse must be >450ns
+    expander_write(lcd, dat & ~LCD1602_IIC_EN_BIT);  // EN low
+    delay_us(50);                                    // commands need > 37us to settle
+}
+
+// write 4 bits to expander
+static void write_4bits(lcd1602_iic_t* lcd, uint8_t value) {
+    expander_write(lcd, value);
+    pulse_enable(lcd, value);
+}
+
+// write 8 bits to expander
+static void write_byte(lcd1602_iic_t* lcd, uint8_t value, uint8_t mode) {
+    uint8_t hi = value & 0xf0;
+    uint8_t lo = (value << 4) & 0xf0;
+    write_4bits(lcd, hi | mode);
+    write_4bits(lcd, lo | mode);
+}
+
+/**************************public functions***********************/
+
+void lcd1602_iic_write_cmd(lcd1602_iic_t* lcd, uint8_t cmd) {
+    write_byte(lcd, cmd, 0);
+}
+
+void lcd1602_iic_write_data(lcd1602_iic_t* lcd, uint8_t dat) {
+    write_byte(lcd, dat, LCD1602_IIC_RS_BIT);
+}
+
+void lcd1602_iic_init(lcd1602_iic_t* lcd) {
+    uint8_t backlight = lcd->backlight;
+    lcd->backlight = LCD1602_IIC_NO_BACKLIGHT;
+    lcd->display_function = HD44780_4BIT_MODE | HD44780_2LINE | HD44780_5x8_DOTS;
+    if (lcd->lines > 1) {
+        lcd->lines = 1;
+        lcd->display_function |= HD44780_2LINE;
     }
 
-    // now the device is ready, write the buf to the device
-    iic_write_byte(lcd->iic, dat);
-    iic_stop(lcd->iic);
-    return IIC_ACK;
+    // for some 1 line displays you can select a 10 pixel high font
+    if (lcd->dotsize != HD44780_5x8_DOTS && lcd->lines == 1) {
+        lcd->dotsize = HD44780_5x10_DOTS;
+        lcd->display_function |= HD44780_5x10_DOTS;
+    }
+
+    // SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
+    // according to datasheet, we need at least 40ms after power rises above 2.7V
+    // before sending commands.
+    delay_ms(50);
+
+    // Now we pull both RS and R/W low to begin commands
+    expander_write(lcd, LCD1602_IIC_NO_BACKLIGHT);  // reset expander and turn backlight off (Bit 8 =1)
+    delay_ms(1000);
+
+    // put the LCD into 4 bit mode
+    // this is according to the hitachi HD44780 datasheet
+    // figure 24, pg 46
+
+    // we start in 8bit mode, try to set 4 bit mode
+    write_4bits(lcd, 0x03 << 4);
+    delay_ms(5);  // wait min 4.1ms
+
+    // second try
+    write_4bits(lcd, 0x03 << 4);
+    delay_ms(5);  // wait min 4.1ms
+
+    // third go!
+    write_4bits(lcd, 0x03 << 4);
+    delay_ms(1);
+
+    // finally, set to 4-bit interface
+    write_4bits(lcd, 0x02 << 4);
+
+    // set # lines, font size, etc.
+    lcd1602_iic_write_cmd(lcd, HD44780_FUNCTION_SET | lcd->display_function);
+
+    // turn the display on with no cursor or blinking default
+    lcd->display_control = HD44780_DISPLAY_ON | HD44780_CURSOR_OFF | HD44780_BLINK_OFF;
+    lcd1602_iic_display(lcd);
+
+    // clear it off
+    lcd1602_iic_clear(lcd);
+
+    // Initialize to default text direction (for roman languages)
+    lcd->display_mode = HD44780_ENTRY_LEFT | HD44780_ENTRY_SHIFT_DECREMENT;
+
+    // set the entry mode
+    lcd1602_iic_write_cmd(lcd, HD44780_ENTRY_MODE_SET | lcd->display_mode);
+
+    // set back the backlight
+    lcd->backlight = backlight;
+
+    lcd1602_iic_home(lcd);
 }
 
-bit lcd1602_iic_write_cmd(const lcd1602_iic_t* lcd, uint8_t cmd) {
-    bit ack = lcd1602_iic_write_byte(lcd, cmd & 0xfc);
-    delay_us(2);
-    ack = lcd1602_iic_write_byte(lcd, cmd & 0xf8);
-    delay_us(2);
-    ack = lcd1602_iic_write_byte(lcd, (cmd << 4) | 0x0c);
-    delay_us(2);
-    ack = lcd1602_iic_write_byte(lcd, (cmd << 4) | 0x08);
-    delay_us(2);
-    return ack;
+// clear the display
+void lcd1602_iic_clear(lcd1602_iic_t* lcd) {
+    lcd1602_iic_write_cmd(lcd, HD44780_CLEAR_DISPLAY);
+    delay_ms(2);  // this command takes a long time!
 }
 
-bit lcd1602_iic_write_data(const lcd1602_iic_t* lcd, uint8_t dat) {
-    bit ack = lcd1602_iic_write_byte(lcd, dat & 0xfd);
-    delay_us(2);
-    ack = lcd1602_iic_write_byte(lcd, dat & 0xf9);
-    delay_us(2);
-    ack = lcd1602_iic_write_byte(lcd, (dat << 4) | 0x0d);
-    delay_us(2);
-    ack = lcd1602_iic_write_byte(lcd, (dat << 4) | 0x09);
-    return ack;
+// return cursor to home position
+void lcd1602_iic_home(lcd1602_iic_t* lcd) {
+    lcd1602_iic_write_cmd(lcd, HD44780_RETURN_HOME);
+    delay_ms(2);  // this command takes a long time!
 }
 
-void lcd1602_iic_init(const lcd1602_iic_t* lcd) {
-    /*
-     * Wait for more than 15ms after Vcc rises to 4.5V
-     * Or wait for more than 40ms after Vcc rises to 2.7V
-     */
-    delay_ms(40);
-    // send 0x3 3 times
-    lcd1602_iic_write_cmd(lcd, 0x33);
-    delay_ms(5);
-    lcd1602_iic_write_cmd(lcd, 0x32);
-    delay_ms(5);
-    // set 4-bit mode
-    lcd1602_iic_write_cmd(lcd, 0x28);
-    delay_ms(5);
-    // display off
-    // lcd1602_iic_write_cmd(lcd, 0x08);
-    delay_us(50);
-    // clear display
-    lcd1602_iic_write_cmd(lcd, 0x01);
-    delay_ms(3);
-    // entry mode, auto increment with no shift
-    lcd1602_iic_write_cmd(lcd, 0x06);
-    delay_us(50);
-    // display on, cursor off, blink off
-    lcd1602_iic_write_cmd(lcd, 0x0c);
-    delay_us(50);
+// turn the display off (quickly)
+void lcd1602_iic_no_display(lcd1602_iic_t* lcd) {
+    lcd->display_control &= ~HD44780_DISPLAY_ON;
+    lcd1602_iic_write_cmd(lcd, HD44780_DISPLAY_CONTROL | lcd->display_control);
 }
 
-void lcd1602_iic_clear(const lcd1602_iic_t* lcd) {
-    lcd1602_iic_write_cmd(lcd, 0x01);
+// turn the display on (quickly)
+void lcd1602_iic_display(lcd1602_iic_t* lcd) {
+    lcd->display_control |= HD44780_DISPLAY_ON;
+    lcd1602_iic_write_cmd(lcd, HD44780_DISPLAY_CONTROL | lcd->display_control);
+}
+
+// turn the blinking cursor off
+void lcd1602_iic_no_blink(lcd1602_iic_t* lcd) {
+    lcd->display_control &= ~HD44780_BLINK_ON;
+    lcd1602_iic_write_cmd(lcd, HD44780_DISPLAY_CONTROL | lcd->display_control);
+}
+
+// turn the blinking cursor on
+void lcd1602_iic_blink(lcd1602_iic_t* lcd) {
+    lcd->display_control |= HD44780_BLINK_ON;
+    lcd1602_iic_write_cmd(lcd, HD44780_DISPLAY_CONTROL | lcd->display_control);
+}
+
+// turn the cursor off
+void lcd1602_iic_no_cursor(lcd1602_iic_t* lcd) {
+    lcd->display_control &= ~HD44780_CURSOR_ON;
+    lcd1602_iic_write_cmd(lcd, HD44780_DISPLAY_CONTROL | lcd->display_control);
+}
+
+// turn the cursor on
+void lcd1602_iic_cursor(lcd1602_iic_t* lcd) {
+    lcd->display_control |= HD44780_CURSOR_ON;
+    lcd1602_iic_write_cmd(lcd, HD44780_DISPLAY_CONTROL | lcd->display_control);
+}
+
+// scroll the display left without changing the RAM
+void lcd1602_iic_scroll_display_left(lcd1602_iic_t* lcd) {
+    lcd1602_iic_write_cmd(lcd, HD44780_CURSOR_SHIFT | HD44780_DISPLAY_MOVE | HD44780_MOVE_LEFT);
+}
+
+// scroll the display right without changing the RAM
+void lcd1602_iic_scroll_display_right(lcd1602_iic_t* lcd) {
+    lcd1602_iic_write_cmd(lcd, HD44780_CURSOR_SHIFT | HD44780_DISPLAY_MOVE | HD44780_MOVE_RIGHT);
+}
+
+// text flows Left to Right
+void lcd1602_iic_left_to_right(lcd1602_iic_t* lcd) {
+    lcd->display_mode |= HD44780_ENTRY_LEFT;
+    lcd1602_iic_write_cmd(lcd, HD44780_ENTRY_MODE_SET | lcd->display_mode);
+}
+
+// text flows Right to Left
+void lcd1602_iic_right_to_left(lcd1602_iic_t* lcd) {
+    lcd->display_mode &= ~HD44780_ENTRY_LEFT;
+    lcd1602_iic_write_cmd(lcd, HD44780_ENTRY_MODE_SET | lcd->display_mode);
+}
+
+// turn the backlight off
+void lcd1602_iic_no_backlight(lcd1602_iic_t* lcd) {
+    lcd->backlight = LCD1602_IIC_NO_BACKLIGHT;
+    expander_write(lcd, 0);
+}
+
+// turn the backlight on
+void lcd1602_iic_backlight(lcd1602_iic_t* lcd) {
+    lcd->backlight = LCD1602_IIC_BACKLIGHT;
+    expander_write(lcd, 0);
+}
+
+// 'left justify' text from the cursor
+void lcd1602_iic_no_autoscroll(lcd1602_iic_t* lcd) {
+    lcd->display_mode &= ~HD44780_ENTRY_SHIFT_INCREMENT;
+    lcd1602_iic_write_cmd(lcd, HD44780_ENTRY_MODE_SET | lcd->display_mode);
+}
+
+// 'right justify' text from the cursor
+void lcd1602_iic_autoscroll(lcd1602_iic_t* lcd) {
+    lcd->display_mode |= HD44780_ENTRY_SHIFT_INCREMENT;
+    lcd1602_iic_write_cmd(lcd, HD44780_ENTRY_MODE_SET | lcd->display_mode);
 }
 
 // set cursor position, x: 0~15, y: 0~1
-void lcd1602_iic_set_cursor_pos(const lcd1602_iic_t* lcd, uint8_t x, uint8_t y) {
+void lcd1602_iic_set_cursor(lcd1602_iic_t* lcd, uint8_t x, uint8_t y) {
     uint8_t addr = 0x80;
     if (y == 1)
         addr += 0x40;
@@ -85,24 +210,18 @@ void lcd1602_iic_set_cursor_pos(const lcd1602_iic_t* lcd, uint8_t x, uint8_t y) 
     lcd1602_iic_write_cmd(lcd, addr);
 }
 
-void lcd1602_iic_show_cursor(const lcd1602_iic_t* lcd, bit show) {
-    if (show)
-        lcd1602_iic_write_cmd(lcd, 0x0e);
-    else
-        lcd1602_iic_write_cmd(lcd, 0x0c);
-}
-
-void lcd1602_iic_putc(const lcd1602_iic_t* lcd, char c) {
+// display a char
+void lcd1602_iic_putc(lcd1602_iic_t* lcd, char c) {
     lcd1602_iic_write_data(lcd, c);
 }
 
 // display one digit, range 0~9
-void lcd1602_iic_putd(const lcd1602_iic_t* lcd, uint8_t d) {
+void lcd1602_iic_putd(lcd1602_iic_t* lcd, uint8_t d) {
     lcd1602_iic_write_data(lcd, d + '0');
 }
 
 // display two chars for hex, range 0x00~0xff
-void lcd1602_iic_puth(const lcd1602_iic_t* lcd, uint8_t h) {
+void lcd1602_iic_puth(lcd1602_iic_t* lcd, uint8_t h) {
     uint8_t hi = h >> 4;
     uint8_t lo = h & 0x0f;
     lcd1602_iic_write_data(lcd, hi > 9 ? 'A' - 10 + hi : '0' + hi);
@@ -110,12 +229,22 @@ void lcd1602_iic_puth(const lcd1602_iic_t* lcd, uint8_t h) {
 }
 
 // display null-terminated string
-void lcd1602_iic_puts(const lcd1602_iic_t* lcd, const char* s) {
+void lcd1602_iic_puts(lcd1602_iic_t* lcd, char* s) {
     while (*s)
         lcd1602_iic_write_data(lcd, *s++);
 }
 
-// shift 1 char to left/right, dir='R' for right, 'L' for left
-void lcd1602_iic_shift(const lcd1602_iic_t* lcd, char dir) {
-    lcd1602_iic_write_cmd(lcd, dir == 'R' ? 0x1c : 0x18);
+/**
+ * @brief Create a custom character (glyph) for use on the LCD
+ *
+ * @param lcd The LCD1602 with IIC instance
+ * @param location The location where the character is stored, 0~7
+ * @param charmap The data for the custom character, 8 bytes
+ */
+void lcd1602_iic_create_char(lcd1602_iic_t* lcd, uint8_t location, uint8_t charmap[]) {
+    uint8_t i;
+    location &= 0x7;  // we only have 8 locations 0-7
+    lcd1602_iic_write_cmd(lcd, HD44780_SET_CGRAM_ADDR | (location << 3));
+    for (i = 0; i < 8; i++)
+        lcd1602_iic_write_data(lcd, charmap[i]);
 }

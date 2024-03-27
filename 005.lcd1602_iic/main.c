@@ -4,7 +4,7 @@
 
 // manipulate the LCD1602 with raw commands
 // or comment this macro to use the lcd1602_iic_t interface
-#define SIMPLE_TEST
+// #define SIMPLE_TEST
 
 /**************************iic configurations*************************/
 sbit IIC_SCL = P3 ^ 2;
@@ -140,6 +140,10 @@ static void print(uint8_t x, uint8_t y, uint8_t *str) {
 static lcd1602_iic_t lcd = {
     &iic,
     IIC_LCD_ADDR,
+    16,
+    2,
+    HD44780_5x8_DOTS,
+    LCD1602_IIC_BACKLIGHT,
 };
 
 #endif
@@ -164,19 +168,19 @@ main() {
     lcd1602_iic_init(&lcd);
 
     while (1) {
-        // lcd1602_iic_clear(&lcd);
-        // lcd1602_iic_set_cursor_pos(&lcd, 0, 0);
-        // lcd1602_iic_puts(&lcd, "Hello, Bilibili!");
-        // lcd1602_iic_set_cursor_pos(&lcd, 0, 1);
-        // lcd1602_iic_puts(&lcd, "Hello, Zhihu!");
-        // delay_ms(2000);
+        lcd1602_iic_clear(&lcd);
+        lcd1602_iic_set_cursor(&lcd, 0, 0);
+        lcd1602_iic_puts(&lcd, "Hello, Bilibili!");
+        lcd1602_iic_set_cursor(&lcd, 0, 1);
+        lcd1602_iic_puts(&lcd, "Hello, Zhihu!");
+        delay_ms(2000);
 
-        // lcd1602_iic_clear(&lcd);
-        // lcd1602_iic_set_cursor_pos(&lcd, 0, 0);
-        // lcd1602_iic_puts(&lcd, "Hello, world!");
-        // lcd1602_iic_set_cursor_pos(&lcd, 0, 1);
-        // lcd1602_iic_puts(&lcd, "Hello, github!");
-        // delay_ms(2000);
+        lcd1602_iic_clear(&lcd);
+        lcd1602_iic_set_cursor(&lcd, 0, 0);
+        lcd1602_iic_puts(&lcd, "Hello, world!");
+        lcd1602_iic_set_cursor(&lcd, 0, 1);
+        lcd1602_iic_puts(&lcd, "Hello, github!");
+        delay_ms(2000);
     }
 #endif
 }

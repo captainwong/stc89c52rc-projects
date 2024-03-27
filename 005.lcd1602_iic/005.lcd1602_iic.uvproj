@@ -382,11 +382,6 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
-              <FileName>lcd1602.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lcd1602.c</FilePath>
-            </File>
-            <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\lib\delay.c</FilePath>
