@@ -140,9 +140,7 @@ static void print(uint8_t x, uint8_t y, uint8_t *str) {
 static lcd1602_iic_t lcd = {
     &iic,
     IIC_LCD_ADDR,
-    16,
-    2,
-    HD44780_5x8_DOTS,
+    HD44780_1LINE,
     LCD1602_IIC_BACKLIGHT,
 };
 
@@ -165,20 +163,23 @@ main() {
     }
 
 #else
-    lcd1602_iic_init(&lcd);
+    lcd1602_iic_init(&lcd, HD44780_5x10_DOTS);
 
     while (1) {
         lcd1602_iic_clear(&lcd);
         lcd1602_iic_set_cursor(&lcd, 0, 0);
-        lcd1602_iic_puts(&lcd, "Hello, Bilibili!");
-        lcd1602_iic_set_cursor(&lcd, 0, 1);
-        lcd1602_iic_puts(&lcd, "Hello, Zhihu!");
+        lcd1602_iic_puts(&lcd, "I'm PCF8574T!");
+        delay_ms(2000);
+        
+        lcd1602_iic_clear(&lcd);
+        lcd1602_iic_puts(&lcd, "I'm LCD1602!");
         delay_ms(2000);
 
         lcd1602_iic_clear(&lcd);
-        lcd1602_iic_set_cursor(&lcd, 0, 0);
         lcd1602_iic_puts(&lcd, "Hello, world!");
-        lcd1602_iic_set_cursor(&lcd, 0, 1);
+        delay_ms(2000);
+        
+        lcd1602_iic_clear(&lcd);
         lcd1602_iic_puts(&lcd, "Hello, github!");
         delay_ms(2000);
     }

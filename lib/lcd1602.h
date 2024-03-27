@@ -3,6 +3,7 @@
 
 #include "delay.h"
 #include "types.h"
+#include "hd44780.h"
 
 #define LCD1602_MODE_4BIT 0
 #define LCD1602_MODE_8BIT 1

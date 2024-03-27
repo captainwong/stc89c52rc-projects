@@ -9,7 +9,6 @@ function build_project() {
     error=`echo $out | awk '{print $3}'`
     if [ "$error" == "0" ]; then
         echo "Build success"
-        rm -f ./$project/build.log
         return 0
     else
         echo "Build failed, original output is:"

@@ -15,8 +15,8 @@
 #define __LCD1602_IIC_H__
 
 #include "delay.h"
-#include "iic.h"
 #include "hd44780.h"
+#include "iic.h"
 
 /*
  * Pin configurations:
@@ -37,15 +37,12 @@ typedef struct {
     // The following are public parts, should be initialized before calling `lcd1602_iic_init`
     iic_t* iic;         // The initialized IIC instance
     uint8_t addr;       // The IIC address of the LCD1602, e.g. 0x27 for PCF8574T
-    uint8_t cols;       // The number of columns
-    uint8_t rows;       // The number of rows
-    uint8_t dotsize;    // The size of the characters
+    uint8_t lines;      // The number of lines, e.g. HD44780_1LINE, HD44780_2LINE
     uint8_t backlight;  // The backlight status
     // The following are private parts, should not be accessed directly
     uint8_t display_function;  // The display function
     uint8_t display_control;   // The display control
     uint8_t display_mode;      // The display mode
-    uint8_t lines;             // The number of lines
 } lcd1602_iic_t;
 
 /**
@@ -54,14 +51,13 @@ typedef struct {
  * @param lcd The LCD1602 with IIC instance
  * @param lcd.iic The initialized IIC instance
  * @param lcd.addr The IIC address of the LCD1602, e.g. `0x27` for `PCF8574T`
- * @param lcd.cols The number of columns, e.g. `16`
- * @param lcd.rows The number of rows, e.g. `2`
- * @param lcd.dotsize The size of the characters, e.g. `HD44780_5x8_DOTS`, `HD44780_5x10_DOTS`
+ * @param lcd.lines The number of lines, e.g. `HD44780_1LINE`, `HD44780_2LINE`
  * @param lcd.backlight The backlight status, e.g. `LCD1602_IIC_BACKLIGHT`, `LCD1602_IIC_NO_BACKLIGHT`
+ * @param dotsize The size of the characters, e.g. `HD44780_5x8_DOTS`, `HD44780_5x10_DOTS`
  * @note Don't touch other fields of the `lcd1602_iic_t struct`,
  *      they are ignored and will be initialized automatically
  */
-void lcd1602_iic_init(lcd1602_iic_t* lcd);
+void lcd1602_iic_init(lcd1602_iic_t* lcd, uint8_t dotsize);
 // clear the display
 void lcd1602_iic_clear(lcd1602_iic_t* lcd);
 // return cursor to home position
