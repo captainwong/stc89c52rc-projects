@@ -394,7 +394,7 @@
             <File>
               <FileName>lcd1602_iic.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\lcd1602_iic.c</FilePath>
+              <FilePath>..\lib\lcd1602_iic.c</FilePath>
             </File>
           </Files>
         </Group>

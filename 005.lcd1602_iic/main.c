@@ -134,7 +134,7 @@ static void print(uint8_t x, uint8_t y, uint8_t *str) {
     }
 }
 #else  // SIMPLE_TEST
-#include "lcd1602_iic.h"
+#include "../lib/lcd1602_iic.h"
 /**************************lcd1602_iic configurations*********************/
 
 static lcd1602_iic_t lcd = {

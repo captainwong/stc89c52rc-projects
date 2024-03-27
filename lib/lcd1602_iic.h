@@ -14,8 +14,8 @@
 #ifndef __LCD1602_IIC_H__
 #define __LCD1602_IIC_H__
 
-#include "../lib/delay.h"
-#include "../lib/iic.h"
+#include "delay.h"
+#include "iic.h"
 #include "hd44780.h"
 
 /*

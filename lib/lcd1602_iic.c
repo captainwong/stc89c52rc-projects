@@ -42,6 +42,26 @@ void lcd1602_iic_write_data(lcd1602_iic_t* lcd, uint8_t dat) {
     write_byte(lcd, dat, LCD1602_IIC_RS_BIT);
 }
 
+
+// When the display powers up, it is configured as follows:
+//
+// 1. Display clear
+// 2. Function set:
+//    DL = 1; 8-bit interface data
+//    N = 0; 1-line display
+//    F = 0; 5x8 dot character font
+// 3. Display on/off control:
+//    D = 0; Display off
+//    C = 0; Cursor off
+//    B = 0; Blinking off
+// 4. Entry mode set:
+//    I/D = 1; Increment by 1
+//    S = 0; No shift
+//
+// Note, however, that resetting the board doesn't reset the LCD, so we
+// can't assume that its in that state when a sketch starts (and the
+// lcd1602_iic_init is called).
+
 void lcd1602_iic_init(lcd1602_iic_t* lcd) {
     uint8_t backlight = lcd->backlight;
     lcd->backlight = LCD1602_IIC_NO_BACKLIGHT;
