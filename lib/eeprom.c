@@ -1,6 +1,6 @@
 #include "eeprom.h"
 
-bit eeprom_read(const iic_io_t* iic, uint8_t dev, uint8_t addr, uint8_t* buf, uint8_t len) {
+bit eeprom_read(const iic_t* iic, uint8_t dev, uint8_t addr, uint8_t* buf, uint8_t len) {
     // wait for the device to be ready
     uint8_t retries = EEPROM_RETRY_TIMES;
     do {
@@ -28,7 +28,7 @@ bit eeprom_read(const iic_io_t* iic, uint8_t dev, uint8_t addr, uint8_t* buf, ui
     return IIC_ACK;
 }
 
-bit eeprom_write(const iic_io_t* iic, uint8_t dev, uint8_t addr, const uint8_t* buf, uint8_t len) {
+bit eeprom_write(const iic_t* iic, uint8_t dev, uint8_t addr, const uint8_t* buf, uint8_t len) {
     while (len) {
         // wait for the device to be ready and last time write is finished
         uint8_t retries = EEPROM_RETRY_TIMES;

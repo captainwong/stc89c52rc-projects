@@ -382,14 +382,24 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
-              <FileName>delay.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\delay.c</FilePath>
-            </File>
-            <File>
               <FileName>lcd1602.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lcd1602.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>iic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\iic.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd1602_iic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lcd1602_iic.c</FilePath>
             </File>
           </Files>
         </Group>

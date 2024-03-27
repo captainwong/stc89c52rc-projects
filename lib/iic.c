@@ -1,6 +1,6 @@
 #include "iic.h"
 
-void iic_start(const iic_io_t* io) {
+void iic_start(const iic_t* io) {
     io->write_sda(1);
     io->write_scl(1);
     iic_delay();
@@ -9,7 +9,7 @@ void iic_start(const iic_io_t* io) {
     io->write_scl(0);
 }
 
-void iic_stop(const iic_io_t* io) {
+void iic_stop(const iic_t* io) {
     io->write_sda(0);
     io->write_scl(0);
     iic_delay();
@@ -19,7 +19,7 @@ void iic_stop(const iic_io_t* io) {
     iic_delay();
 }
 
-bit iic_write_byte(const iic_io_t* io, uint8_t dat) {
+bit iic_write_byte(const iic_t* io, uint8_t dat) {
     bit ack = IIC_NACK;
     uint8_t mask = 0x80;
     while (mask) {
@@ -40,7 +40,7 @@ bit iic_write_byte(const iic_io_t* io, uint8_t dat) {
     return ack;
 }
 
-bit iic_test(const iic_io_t* io, uint8_t addr) {
+bit iic_test(const iic_t* io, uint8_t addr) {
     bit ack = IIC_NACK;
     iic_start(io);
     ack = iic_write_byte(io, (addr << 1));
@@ -48,7 +48,7 @@ bit iic_test(const iic_io_t* io, uint8_t addr) {
     return ack;
 }
 
-uint8_t iic_read_byte(const iic_io_t* io, bit ack) {
+uint8_t iic_read_byte(const iic_t* io, bit ack) {
     uint8_t dat = 0;
     uint8_t mask = 0x80;
     io->write_sda(1);

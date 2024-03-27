@@ -23,7 +23,7 @@ static bit iic_read_sda() {
     return IIC_SDA;
 }
 
-static const iic_io_t iic_io = {
+static const iic_t iic_io = {
     iic_write_scl,
     iic_write_sda,
     iic_read_sda,

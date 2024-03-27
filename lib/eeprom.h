@@ -25,7 +25,7 @@
  * @len: number of bytes to read
  * @return: IIC_ACK if success, IIC_NACK if failed
  */
-bit eeprom_read(const iic_io_t* iic, uint8_t dev, uint8_t addr, uint8_t* buf, uint8_t len);
+bit eeprom_read(const iic_t* iic, uint8_t dev, uint8_t addr, uint8_t* buf, uint8_t len);
 
 /*
  * write bytes to eeprom
@@ -36,6 +36,6 @@ bit eeprom_read(const iic_io_t* iic, uint8_t dev, uint8_t addr, uint8_t* buf, ui
  * @len: number of bytes to write
  * @return: IIC_ACK if success, IIC_NACK if failed
  */
-bit eeprom_write(const iic_io_t* iic, uint8_t dev, uint8_t addr, const uint8_t* buf, uint8_t len);
+bit eeprom_write(const iic_t* iic, uint8_t dev, uint8_t addr, const uint8_t* buf, uint8_t len);
 
 #endif
