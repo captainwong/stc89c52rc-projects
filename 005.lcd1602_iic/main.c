@@ -140,7 +140,6 @@ static void print(uint8_t x, uint8_t y, uint8_t *str) {
 static lcd1602_iic_t lcd = {
     &iic,
     IIC_LCD_ADDR,
-    HD44780_1LINE,
     LCD1602_IIC_BACKLIGHT,
 };
 
@@ -163,7 +162,7 @@ main() {
     }
 
 #else
-    lcd1602_iic_init(&lcd, HD44780_5x10_DOTS);
+    lcd1602_iic_init(&lcd, HD44780_1LINE, HD44780_5x10_DOTS);
 
     while (1) {
         lcd1602_iic_clear(&lcd);

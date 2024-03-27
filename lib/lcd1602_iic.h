@@ -2,7 +2,7 @@
  * @file lcd1602_iic.h
  * @author captainwong (qtk.jack#gmail.com)
  * @brief A library for LCD1602 with IIC interface
- * @note This implementation is based on the Arduino LiquidCrystal_I2C library
+ * @note This implementation is inspired by the Arduino LiquidCrystal_I2C library
  * @note The LCD1602 module has a PCF8574T chip on board, which is an IIC to 8-bit parallel port expander
  * @version 0.1
  * @date 2024-03-27
@@ -37,7 +37,6 @@ typedef struct {
     // The following are public parts, should be initialized before calling `lcd1602_iic_init`
     iic_t* iic;         // The initialized IIC instance
     uint8_t addr;       // The IIC address of the LCD1602, e.g. 0x27 for PCF8574T
-    uint8_t lines;      // The number of lines, e.g. HD44780_1LINE, HD44780_2LINE
     uint8_t backlight;  // The backlight status
     // The following are private parts, should not be accessed directly
     uint8_t display_function;  // The display function
@@ -51,13 +50,13 @@ typedef struct {
  * @param lcd The LCD1602 with IIC instance
  * @param lcd.iic The initialized IIC instance
  * @param lcd.addr The IIC address of the LCD1602, e.g. `0x27` for `PCF8574T`
- * @param lcd.lines The number of lines, e.g. `HD44780_1LINE`, `HD44780_2LINE`
  * @param lcd.backlight The backlight status, e.g. `LCD1602_IIC_BACKLIGHT`, `LCD1602_IIC_NO_BACKLIGHT`
+ * @param lines The number of lines, e.g. `HD44780_1LINE`, `HD44780_2LINE`
  * @param dotsize The size of the characters, e.g. `HD44780_5x8_DOTS`, `HD44780_5x10_DOTS`
  * @note Don't touch other fields of the `lcd1602_iic_t struct`,
  *      they are ignored and will be initialized automatically
  */
-void lcd1602_iic_init(lcd1602_iic_t* lcd, uint8_t dotsize);
+void lcd1602_iic_init(lcd1602_iic_t* lcd, uint8_t lines, uint8_t dotsize);
 // clear the display
 void lcd1602_iic_clear(lcd1602_iic_t* lcd);
 // return cursor to home position

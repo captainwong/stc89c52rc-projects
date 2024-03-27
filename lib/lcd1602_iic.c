@@ -62,16 +62,16 @@ void lcd1602_iic_write_data(lcd1602_iic_t* lcd, uint8_t dat) {
 // can't assume that its in that state when a sketch starts (and the
 // lcd1602_iic_init is called).
 
-void lcd1602_iic_init(lcd1602_iic_t* lcd, uint8_t dotsize) {
+void lcd1602_iic_init(lcd1602_iic_t* lcd, uint8_t lines, uint8_t dotsize) {
     uint8_t backlight = lcd->backlight;
     lcd->backlight = LCD1602_IIC_NO_BACKLIGHT;
     lcd->display_function = HD44780_4BIT_MODE | HD44780_1LINE | HD44780_5x8_DOTS;
-    if (lcd->lines == HD44780_2LINE) {
+    if (lines == HD44780_2LINE) {
         lcd->display_function |= HD44780_2LINE;
     }
 
     // for some 1 line displays you can select a 10 pixel high font
-    if (dotsize == HD44780_5x10_DOTS && lcd->lines == HD44780_1LINE) {
+    if (dotsize == HD44780_5x10_DOTS && lines == HD44780_1LINE) {
         lcd->display_function |= HD44780_5x10_DOTS;
     }
 
@@ -222,7 +222,7 @@ void lcd1602_iic_autoscroll(lcd1602_iic_t* lcd) {
 // set cursor position, x: 0~15, y: 0~1
 void lcd1602_iic_set_cursor(lcd1602_iic_t* lcd, uint8_t x, uint8_t y) {
     uint8_t addr = 0x80 + (x & 0x0f);
-    if (y == 1 && lcd->lines == HD44780_2LINE)
+    if (y == 1 && lcd->display_function & HD44780_2LINE)
         addr += 0x40;
     lcd1602_iic_write_cmd(lcd, addr);
 }
